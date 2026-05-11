@@ -112,22 +112,19 @@ window.addEventListener('pageshow', (e) => {
 function emMaos(v) { return Math.max(0, v.recebidas - v.vendidas - v.perdidas); }
 
 function renderDaysCounter() {
-  const event = new Date('2026-05-23');
+  const el = document.getElementById('days-counter');
+  if (!el) return;
+  const eventDate = new Date('2026-05-23');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const diff = Math.round((event - today) / (1000 * 60 * 60 * 24));
-  const label = document.querySelector('#days-counter p:first-child');
-  const value = document.getElementById('days-value');
-  if (diff > 0) {
-    label.textContent = 'Evento em';
-    value.textContent = `${diff} dia${diff === 1 ? '' : 's'}`;
-  } else if (diff === 0) {
-    label.textContent = '🎉';
-    value.textContent = 'Hoje!';
-  } else {
-    label.textContent = 'Evento há';
-    value.textContent = `${Math.abs(diff)} dia${Math.abs(diff) === 1 ? '' : 's'}`;
-  }
+  const diff = Math.round((eventDate - today) / (1000 * 60 * 60 * 24));
+  let topLabel, bottomVal;
+  if (diff > 0)      { topLabel = 'Evento em';  bottomVal = `${diff} dia${diff === 1 ? '' : 's'}`; }
+  else if (diff === 0) { topLabel = '🎉 Hoje!';  bottomVal = ''; }
+  else               { topLabel = 'Evento há';  bottomVal = `${Math.abs(diff)} dia${Math.abs(diff) === 1 ? '' : 's'}`; }
+  el.innerHTML = `
+    <p style="font-size:11px;color:var(--text-secondary);margin:0 0 2px;">${topLabel}</p>
+    <p style="font-size:16px;font-weight:500;margin:0;">${bottomVal}</p>`;
 }
 renderDaysCounter();
 function totalVenda(v) { return v.vendidas * data.price; }
