@@ -55,8 +55,6 @@ let saveTimeout = null;
 // ECRÃ DE LOGIN / VISUALIZAÇÃO
 // ============================================================================
 function checkViewAuth() {
-  if (localStorage.getItem('isViewer') === 'true') return;
-
   const overlay = document.getElementById('login-overlay');
   overlay.style.display = 'flex';
 
@@ -64,7 +62,6 @@ function checkViewAuth() {
     e.preventDefault();
     const pwd = document.getElementById('login-pwd').value;
     if (pwd === VIEW_PASSWORD || pwd === ADMIN_PASSWORD) {
-      localStorage.setItem('isViewer', 'true');
       if (pwd === ADMIN_PASSWORD) {
         isAdmin = true;
         localStorage.setItem('isAdmin', 'true');
@@ -432,4 +429,3 @@ async function init() {
 }
 
 checkViewAuth();
-if (localStorage.getItem('isViewer') === 'true') init();
