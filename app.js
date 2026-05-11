@@ -10,6 +10,9 @@ const FIREBASE_CONFIG = {
   appId: "1:859157058286:web:1de4bb5fed23f1fa0d59ff"
 };
 
+// Palavra-passe para visualizar a página
+const VIEW_PASSWORD = "finalexam";
+
 // Palavra-passe simples para entrar em modo de edição
 const ADMIN_PASSWORD = "pulseiras2026";
 
@@ -47,6 +50,34 @@ let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
 let charts = {};
 let isAdmin = localStorage.getItem('isAdmin') === 'true';
 let saveTimeout = null;
+
+// ============================================================================
+// ECRÃ DE LOGIN / VISUALIZAÇÃO
+// ============================================================================
+function checkViewAuth() {
+  if (localStorage.getItem('isViewer') === 'true') return;
+
+  const overlay = document.getElementById('login-overlay');
+  overlay.style.display = 'flex';
+
+  document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pwd = document.getElementById('login-pwd').value;
+    if (pwd === VIEW_PASSWORD || pwd === ADMIN_PASSWORD) {
+      localStorage.setItem('isViewer', 'true');
+      if (pwd === ADMIN_PASSWORD) {
+        isAdmin = true;
+        localStorage.setItem('isAdmin', 'true');
+      }
+      overlay.style.display = 'none';
+      init();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('login-pwd').value = '';
+      document.getElementById('login-pwd').focus();
+    }
+  });
+}
 
 function emMaos(v) { return Math.max(0, v.recebidas - v.vendidas - v.perdidas); }
 function totalVenda(v) { return v.vendidas * data.price; }
@@ -393,9 +424,12 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
-(async function () {
+async function init() {
   await loadData();
   document.getElementById('price').value = data.price;
   renderAll();
   subscribeRealtime();
-})();
+}
+
+checkViewAuth();
+if (localStorage.getItem('isViewer') === 'true') init();

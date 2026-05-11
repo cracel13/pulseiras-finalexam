@@ -111,9 +111,40 @@
       .stat-value { font-size: 20px; }
       .pay-summary { grid-template-columns: 1fr; }
     }
+    #login-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg-tertiary);
+      align-items: center; justify-content: center;
+    }
+    .login-box {
+      background: var(--bg);
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      width: 100%; max-width: 340px;
+      text-align: center;
+    }
+    .login-box h2 { margin-bottom: 6px; }
+    .login-box p { font-size: 13px; color: var(--text-secondary); margin: 0 0 20px; }
+    .login-box input { width: 100%; margin-bottom: 12px; padding: 10px 12px; }
+    .login-box button { width: 100%; padding: 10px; }
+    #login-error { display: none; color: var(--danger); font-size: 13px; margin-top: 8px; }
   </style>
 </head>
 <body>
+  <div id="login-overlay">
+    <div class="login-box">
+      <h2><i class="ti ti-ticket"></i> Gestão de Pulseiras</h2>
+      <p>Introduz a palavra-passe para aceder</p>
+      <form id="login-form">
+        <input type="password" id="login-pwd" placeholder="Palavra-passe" autocomplete="current-password" autofocus>
+        <button type="submit" class="primary">Entrar</button>
+        <p id="login-error">Palavra-passe incorrecta. Tenta novamente.</p>
+      </form>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
       <div>
