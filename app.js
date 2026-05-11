@@ -402,6 +402,7 @@ function renderAll() {
   renderVendedores();
   renderPagamentos();
   updateAdminUI();
+  renderDaysCounter();
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
