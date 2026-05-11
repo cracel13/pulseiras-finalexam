@@ -110,6 +110,18 @@ window.addEventListener('pageshow', (e) => {
 });
 
 function emMaos(v) { return Math.max(0, v.recebidas - v.vendidas - v.perdidas); }
+
+function renderDaysCounter() {
+  const event = new Date('2026-05-23');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diff = Math.round((event - today) / (1000 * 60 * 60 * 24));
+  const el = document.getElementById('days-counter');
+  if (diff > 0) el.textContent = `📅 ${diff} dia${diff === 1 ? '' : 's'} para o evento`;
+  else if (diff === 0) el.textContent = '🎉 Hoje é o evento!';
+  else el.textContent = `Evento há ${Math.abs(diff)} dia${Math.abs(diff) === 1 ? '' : 's'}`;
+}
+renderDaysCounter();
 function totalVenda(v) { return v.vendidas * data.price; }
 function formatEur(n) { return Math.round(n).toLocaleString('pt-PT') + ' €'; }
 
