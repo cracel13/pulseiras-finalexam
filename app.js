@@ -100,6 +100,15 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
+// Trata o bfcache — quando o browser restaura a página do histórico
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    isAuthenticated = false;
+    isAdmin = false;
+    showLoginOverlay();
+  }
+});
+
 function emMaos(v) { return Math.max(0, v.recebidas - v.vendidas - v.perdidas); }
 function totalVenda(v) { return v.vendidas * data.price; }
 function formatEur(n) { return Math.round(n).toLocaleString('pt-PT') + ' €'; }
