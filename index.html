@@ -152,7 +152,17 @@
         <p class="status" id="status"><span class="dot"></span><span id="status-text">A ligar...</span></p>
       </div>
       <div class="controls">
-        <span id="days-counter" style="font-size: 13px; color: var(--text-secondary); white-space: nowrap;"></span>
+        <div id="days-counter" style="
+          background: var(--bg-secondary);
+          border: 0.5px solid var(--border-strong);
+          border-radius: var(--radius);
+          padding: 6px 12px;
+          text-align: center;
+          white-space: nowrap;
+        ">
+          <p style="font-size: 11px; color: var(--text-secondary); margin: 0 0 2px;">Evento em</p>
+          <p id="days-value" style="font-size: 16px; font-weight: 500; margin: 0;"></p>
+        </div>
         <span style="font-size: 13px; color: var(--text-secondary);">Preço</span>
         <input type="number" id="price" value="4" min="0" step="0.5">
         <span style="font-size: 13px;">€</span>

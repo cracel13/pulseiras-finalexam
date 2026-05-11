@@ -116,10 +116,18 @@ function renderDaysCounter() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const diff = Math.round((event - today) / (1000 * 60 * 60 * 24));
-  const el = document.getElementById('days-counter');
-  if (diff > 0) el.textContent = `📅 ${diff} dia${diff === 1 ? '' : 's'} para o evento`;
-  else if (diff === 0) el.textContent = '🎉 Hoje é o evento!';
-  else el.textContent = `Evento há ${Math.abs(diff)} dia${Math.abs(diff) === 1 ? '' : 's'}`;
+  const label = document.querySelector('#days-counter p:first-child');
+  const value = document.getElementById('days-value');
+  if (diff > 0) {
+    label.textContent = 'Evento em';
+    value.textContent = `${diff} dia${diff === 1 ? '' : 's'}`;
+  } else if (diff === 0) {
+    label.textContent = '🎉';
+    value.textContent = 'Hoje!';
+  } else {
+    label.textContent = 'Evento há';
+    value.textContent = `${Math.abs(diff)} dia${Math.abs(diff) === 1 ? '' : 's'}`;
+  }
 }
 renderDaysCounter();
 function totalVenda(v) { return v.vendidas * data.price; }
