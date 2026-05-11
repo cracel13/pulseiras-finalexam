@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1d9e75">
+  <title>Gestão de Pulseiras</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f5f4ef;
+      --bg-tertiary: #faf9f5;
+      --text: #1f1e1d;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.2);
+      --accent: #1d9e75;
+      --accent-dark: #0f6e56;
+      --danger: #a32d2d;
+      --success: #3b6d11;
+      --warning: #ba7517;
+      --info: #185fa5;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1f1e1d;
+        --bg-secondary: #2c2b29;
+        --bg-tertiary: #262524;
+        --text: #f5f4ef;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #888780;
+        --border: rgba(255,255,255,0.1);
+        --border-strong: rgba(255,255,255,0.2);
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-tertiary);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+    h2 { font-size: 18px; font-weight: 500; margin: 0 0 12px; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .status { font-size: 13px; color: var(--text-secondary); margin: 0; display: flex; align-items: center; gap: 6px; }
+    .status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); }
+    .status.online .dot { background: var(--success); }
+    .status.offline .dot { background: var(--warning); }
+    .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    button, input, select {
+      font-family: inherit; font-size: 14px; color: var(--text);
+      background: var(--bg); border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius); padding: 8px 12px; outline: none;
+    }
+    button { cursor: pointer; transition: background 0.15s; }
+    button:hover { background: var(--bg-secondary); }
+    button:active { transform: scale(0.98); }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.primary:hover { background: var(--accent-dark); }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(29,158,117,0.2); }
+    input[type=number] { width: 70px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 0.5px solid var(--border); overflow-x: auto; }
+    .tab-btn { padding: 10px 16px; border: none; background: transparent; border-bottom: 2px solid transparent; border-radius: 0; cursor: pointer; white-space: nowrap; color: var(--text-secondary); }
+    .tab-btn.active { border-bottom-color: var(--text); color: var(--text); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: var(--bg-secondary); border-radius: var(--radius); padding: 14px; }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin: 0 0 4px; }
+    .stat-value { font-size: 22px; font-weight: 500; margin: 0; }
+    .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 10px; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .chart-wrap { position: relative; width: 100%; height: 200px; }
+    .vendor-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 10px; }
+    .vendor-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .vendor-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .vendor-name .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .vendor-name strong { font-weight: 500; font-size: 15px; }
+    .vendor-name .label { font-size: 11px; color: var(--text-secondary); }
+    .vendor-info { font-size: 13px; color: var(--text-secondary); }
+    .field-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .field { display: flex; flex-direction: column; }
+    .field label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+    .field input { width: 100%; padding: 8px; }
+    .notes-input { width: 100%; margin-top: 8px; font-size: 12px; padding: 6px 8px; }
+    .group-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin: 0 0 8px; }
+    .group { margin-bottom: 24px; }
+    .pay-summary { background: var(--bg-secondary); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .progress { height: 4px; background: var(--bg-secondary); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+    .progress-bar { height: 100%; transition: width 0.3s; }
+    .btn-icon { padding: 6px 10px; font-size: 13px; }
+    .btn-icon i { font-size: 16px; }
+    .empty { text-align: center; color: var(--text-secondary); padding: 32px 16px; }
+    .auth-banner { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 13px; }
+    .add-form { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .add-form input { flex: 1; min-width: 160px; }
+    @media (max-width: 480px) {
+      .container { padding: 12px; }
+      h1 { font-size: 20px; }
+      .stat-value { font-size: 20px; }
+      .pay-summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1><i class="ti ti-ticket" aria-hidden="true"></i> Gestão de pulseiras</h1>
+        <p class="status" id="status"><span class="dot"></span><span id="status-text">A ligar...</span></p>
+      </div>
+      <div class="controls">
+        <span style="font-size: 13px; color: var(--text-secondary);">Preço</span>
+        <input type="number" id="price" value="4" min="0" step="0.5">
+        <span style="font-size: 13px;">€</span>
+        <button id="btn-export" class="btn-icon" title="Exportar CSV"><i class="ti ti-download"></i></button>
+        <button id="btn-login" class="btn-icon" title="Entrar como admin"><i class="ti ti-lock"></i></button>
+      </div>
+    </div>
+
+    <div id="readonly-banner" class="auth-banner" style="display: none;">
+      <span><i class="ti ti-eye"></i> Modo apenas-leitura. Para editar, clica em <i class="ti ti-lock"></i></span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="dashboard"><i class="ti ti-chart-bar"></i> Dashboard</button>
+      <button class="tab-btn" data-tab="vendedores"><i class="ti ti-users"></i> Vendedores</button>
+      <button class="tab-btn" data-tab="pagamentos"><i class="ti ti-cash"></i> Pagamentos</button>
+    </div>
+
+    <div id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><p class="stat-label">Distribuídas</p><p class="stat-value" id="stat-total">0</p></div>
+        <div class="stat-card"><p class="stat-label">Vendidas</p><p class="stat-value" id="stat-vendidas">0</p></div>
+        <div class="stat-card"><p class="stat-label">Em mãos</p><p class="stat-value" id="stat-maos">0</p></div>
+        <div class="stat-card"><p class="stat-label">Angariado</p><p class="stat-value" id="stat-receita">0 €</p></div>
+        <div class="stat-card"><p class="stat-label">Recebido</p><p class="stat-value" id="stat-recebido">0 €</p></div>
+        <div class="stat-card"><p class="stat-label">Perdidas</p><p class="stat-value" id="stat-falta" style="color: var(--danger);">0</p></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="card">
+          <p class="stat-label">Pulseiras por categoria</p>
+          <div class="chart-wrap"><canvas id="chart-categoria"></canvas></div>
+        </div>
+        <div class="card">
+          <p class="stat-label">Estado das pulseiras</p>
+          <div class="chart-wrap"><canvas id="chart-estado"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="stat-label">Vendas por vendedor (€)</p>
+        <div style="position: relative; width: 100%;" id="chart-vendedores-wrap">
+          <canvas id="chart-vendedores"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-vendedores" style="display: none;">
+      <div class="add-form admin-only">
+        <input type="text" id="new-name" placeholder="Nome do vendedor">
+        <select id="new-cat">
+          <option value="AE">AE</option>
+          <option value="Chefe">Chefe</option>
+        </select>
+        <button id="btn-add" class="primary"><i class="ti ti-plus"></i> Adicionar</button>
+      </div>
+      <div id="vendedores-list"></div>
+    </div>
+
+    <div id="tab-pagamentos" style="display: none;">
+      <div class="pay-summary">
+        <div><p class="stat-label">Total a receber</p><p class="stat-value" id="pag-total" style="font-size: 18px;">0 €</p></div>
+        <div><p class="stat-label">Já recebido</p><p class="stat-value" id="pag-recebido" style="font-size: 18px; color: var(--success);">0 €</p></div>
+        <div><p class="stat-label">Em dívida</p><p class="stat-value" id="pag-divida" style="font-size: 18px; color: var(--danger);">0 €</p></div>
+      </div>
+      <div id="pagamentos-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
