@@ -48,26 +48,40 @@ const DEFAULT_DATA = {
 
 let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
 let charts = {};
-let isAdmin = localStorage.getItem('isAdmin') === 'true';
+let isAdmin = false;
 let saveTimeout = null;
+let appInitialized = false;
+let isAuthenticated = false;
 
 // ============================================================================
 // ECRÃ DE LOGIN / VISUALIZAÇÃO
 // ============================================================================
-function checkViewAuth() {
+function showLoginOverlay() {
   const overlay = document.getElementById('login-overlay');
   overlay.style.display = 'flex';
+  document.getElementById('login-pwd').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  setTimeout(() => document.getElementById('login-pwd').focus(), 100);
+}
+
+function checkViewAuth() {
+  showLoginOverlay();
 
   document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const pwd = document.getElementById('login-pwd').value;
     if (pwd === VIEW_PASSWORD || pwd === ADMIN_PASSWORD) {
+      isAuthenticated = true;
       if (pwd === ADMIN_PASSWORD) {
         isAdmin = true;
-        localStorage.setItem('isAdmin', 'true');
       }
-      overlay.style.display = 'none';
-      init();
+      document.getElementById('login-overlay').style.display = 'none';
+      if (!appInitialized) {
+        appInitialized = true;
+        init();
+      } else {
+        renderAll();
+      }
     } else {
       document.getElementById('login-error').style.display = 'block';
       document.getElementById('login-pwd').value = '';
@@ -75,6 +89,16 @@ function checkViewAuth() {
     }
   });
 }
+
+// Re-pede password quando a app volta ao primeiro plano
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    isAuthenticated = false;
+    isAdmin = false;
+  } else if (document.visibilityState === 'visible' && !isAuthenticated) {
+    showLoginOverlay();
+  }
+});
 
 function emMaos(v) { return Math.max(0, v.recebidas - v.vendidas - v.perdidas); }
 function totalVenda(v) { return v.vendidas * data.price; }

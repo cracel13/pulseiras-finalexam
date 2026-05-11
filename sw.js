@@ -1,5 +1,5 @@
 // Service worker mínimo — permite "instalar" no telemóvel
-const CACHE = 'pulseiras-v1';
+const CACHE = 'pulseiras-v2';
 const ASSETS = ['./', './index.html', './app.js', './manifest.json'];
 
 self.addEventListener('install', (e) => {
