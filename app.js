@@ -327,65 +327,19 @@ function renderVendedores() {
             <div class="vendor-info">
               ${emMaos(v)} em mãos · ${formatEur(totalVenda(v))}
               ${isAdmin ? `<button class="btn-del btn-icon admin-only" data-id="${v.id}" title="Remover"><i class="ti ti-trash"></i></button>` : ''}
-              <i class="ti ti-chevron-down chevron"></i>
             </div>
           </div>
-          <div class="vendor-card-body">
-            <div class="field-grid">
-              ${field(v.id, 'recebidas', 'Recebidas', v.recebidas)}
-              ${field(v.id, 'vendidas', 'Vendidas', v.vendidas)}
-              ${field(v.id, 'perdidas', 'Perdidas', v.perdidas)}
-            </div>
-            <input type="text" class="notes-input" data-id="${v.id}" placeholder="Notas" value="${(v.notas || '').replace(/"/g, '&quot;')}" ${isAdmin ? '' : 'disabled'}>
+          <div class="field-grid">
+            ${field(v.id, 'recebidas', 'Recebidas', v.recebidas)}
+            ${field(v.id, 'vendidas', 'Vendidas', v.vendidas)}
+            ${field(v.id, 'perdidas', 'Perdidas', v.perdidas)}
           </div>
+          <input type="text" class="notes-input" data-id="${v.id}" placeholder="Notas" value="${(v.notas || '').replace(/"/g, '&quot;')}" ${isAdmin ? '' : 'disabled'}>
         </div>`;
       }).join('') + '</div>';
   }).join('');
 
   if (isAdmin) bindVendorEvents();
-  bindExpandableCards();
-}
-
-function isMobile() {
-  return window.matchMedia('(max-width: 640px)').matches;
-}
-
-function setBodyHidden(body) {
-  body.style.overflow = 'hidden';
-  body.style.maxHeight = '0px';
-  body.style.opacity = '0';
-  body.style.transition = 'max-height 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.25s ease';
-}
-
-function setBodyVisible(body) {
-  body.style.maxHeight = body.scrollHeight + 'px';
-  body.style.opacity = '1';
-}
-
-function bindExpandableCards() {
-  const mobile = isMobile();
-
-  document.querySelectorAll('.vendor-card').forEach(card => {
-    const body = card.querySelector('.vendor-card-body');
-    if (!body) return;
-    if (mobile) {
-      setBodyHidden(body);
-    } else {
-      body.style.cssText = ''; // desktop: limpa estilos inline
-    }
-  });
-
-  document.querySelectorAll('.vendor-header').forEach(header => {
-    header.addEventListener('click', e => {
-      if (e.target.closest('.btn-del')) return;
-      if (!isMobile()) return;
-      const card = header.closest('.vendor-card');
-      const body = card.querySelector('.vendor-card-body');
-      const expanded = card.classList.toggle('expanded');
-      expanded ? setBodyVisible(body) : setBodyHidden(body);
-      haptic(8);
-    });
-  });
 }
 
 function bindVendorEvents() {

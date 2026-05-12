@@ -134,17 +134,6 @@
       .pay-summary { grid-template-columns: 1fr; }
     }
 
-    /* ── Cards expansíveis (só mobile) ── */
-    .chevron {
-      display: none; color: var(--text-tertiary);
-      font-size: 15px; margin-left: 6px; flex-shrink: 0;
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .vendor-card.expanded .chevron { transform: rotate(180deg); }
-    @media (max-width: 640px) {
-      .vendor-header { cursor: pointer; user-select: none; -webkit-user-select: none; }
-      .chevron { display: inline-block; }
-    }
     /* ── Keyframes ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
