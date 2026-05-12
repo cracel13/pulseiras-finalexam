@@ -135,26 +135,15 @@
     }
 
     /* ── Cards expansíveis (só mobile) ── */
-    .chevron { display: none; }
+    .chevron {
+      display: none; color: var(--text-tertiary);
+      font-size: 15px; margin-left: 6px; flex-shrink: 0;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .vendor-card.expanded .chevron { transform: rotate(180deg); }
     @media (max-width: 640px) {
       .vendor-header { cursor: pointer; user-select: none; -webkit-user-select: none; }
-      .chevron {
-        display: inline-block; color: var(--text-tertiary);
-        font-size: 15px; margin-left: 6px; flex-shrink: 0;
-        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .vendor-card.expanded .chevron { transform: rotate(180deg); }
-      .vendor-card-body {
-        overflow: hidden;
-        max-height: 0;
-        opacity: 0;
-        transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                    opacity 0.25s ease;
-      }
-      .vendor-card.expanded .vendor-card-body {
-        max-height: 240px;
-        opacity: 1;
-      }
+      .chevron { display: inline-block; }
     }
     /* ── Keyframes ── */
     @keyframes fadeUp {

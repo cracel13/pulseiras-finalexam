@@ -346,12 +346,43 @@ function renderVendedores() {
   bindExpandableCards();
 }
 
+function isMobile() {
+  return window.matchMedia('(max-width: 640px)').matches;
+}
+
+function setBodyHidden(body) {
+  body.style.overflow = 'hidden';
+  body.style.maxHeight = '0px';
+  body.style.opacity = '0';
+  body.style.transition = 'max-height 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.25s ease';
+}
+
+function setBodyVisible(body) {
+  body.style.maxHeight = body.scrollHeight + 'px';
+  body.style.opacity = '1';
+}
+
 function bindExpandableCards() {
+  const mobile = isMobile();
+
+  document.querySelectorAll('.vendor-card').forEach(card => {
+    const body = card.querySelector('.vendor-card-body');
+    if (!body) return;
+    if (mobile) {
+      setBodyHidden(body);
+    } else {
+      body.style.cssText = ''; // desktop: limpa estilos inline
+    }
+  });
+
   document.querySelectorAll('.vendor-header').forEach(header => {
     header.addEventListener('click', e => {
-      if (e.target.closest('.btn-del')) return; // não expandir ao clicar em remover
+      if (e.target.closest('.btn-del')) return;
+      if (!isMobile()) return;
       const card = header.closest('.vendor-card');
-      card.classList.toggle('expanded');
+      const body = card.querySelector('.vendor-card-body');
+      const expanded = card.classList.toggle('expanded');
+      expanded ? setBodyVisible(body) : setBodyHidden(body);
       haptic(8);
     });
   });
