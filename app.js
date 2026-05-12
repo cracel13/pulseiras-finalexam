@@ -571,6 +571,39 @@ function initTheme() {
   });
 }
 
+// ============================================================================
+// SWIPE ENTRE TABS (mobile)
+// ============================================================================
+function initSwipeTabs() {
+  const TABS = ['dashboard', 'vendedores', 'pagamentos'];
+  const THRESHOLD = 45; // px mínimos para contar como swipe
+  let startX = 0;
+  let startY = 0;
+
+  document.querySelector('.container').addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.querySelector('.container').addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+
+    // ignora se o movimento for maioritariamente vertical (scroll)
+    if (Math.abs(dx) < THRESHOLD || Math.abs(dy) > Math.abs(dx)) return;
+
+    const currentTab = document.querySelector('.tab-btn.active').dataset.tab;
+    const currentIdx = TABS.indexOf(currentTab);
+    const nextIdx = dx < 0
+      ? Math.min(currentIdx + 1, TABS.length - 1)  // deslizar para a esquerda → tab seguinte
+      : Math.max(currentIdx - 1, 0);               // deslizar para a direita → tab anterior
+
+    if (nextIdx === currentIdx) return;
+    document.querySelector(`.tab-btn[data-tab="${TABS[nextIdx]}"]`).click();
+  }, { passive: true });
+}
+
 initRipple();
 initTheme();
+initSwipeTabs();
 checkViewAuth();
