@@ -96,12 +96,13 @@ function checkViewAuth() {
         setTimeout(() => renderAll(), 200);
       }
     } else {
+      haptic([50, 30, 50]);
       document.getElementById('login-error').style.display = 'block';
       document.getElementById('login-pwd').value = '';
       document.getElementById('login-pwd').focus();
       const box = document.querySelector('.login-box');
       box.classList.remove('shake');
-      void box.offsetWidth; // força re-trigger da animação
+      void box.offsetWidth;
       box.classList.add('shake');
       setTimeout(() => box.classList.remove('shake'), 400);
     }
@@ -126,6 +127,10 @@ window.addEventListener('pageshow', (e) => {
     showLoginOverlay();
   }
 });
+
+function haptic(pattern = 10) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
 
 function emMaos(v) { return Math.max(0, v.recebidas - v.vendidas - v.perdidas); }
 
@@ -230,6 +235,7 @@ async function save() {
   saveTimeout = setTimeout(async () => {
     try {
       await setDoc(DOC_REF, data);
+      haptic(15);
       setStatus('online', 'Guardado às ' + new Date().toLocaleTimeString('pt-PT').slice(0, 5));
     } catch (e) {
       console.error('Erro a guardar:', e);
@@ -321,19 +327,35 @@ function renderVendedores() {
             <div class="vendor-info">
               ${emMaos(v)} em mãos · ${formatEur(totalVenda(v))}
               ${isAdmin ? `<button class="btn-del btn-icon admin-only" data-id="${v.id}" title="Remover"><i class="ti ti-trash"></i></button>` : ''}
+              <i class="ti ti-chevron-down chevron"></i>
             </div>
           </div>
-          <div class="field-grid">
-            ${field(v.id, 'recebidas', 'Recebidas', v.recebidas)}
-            ${field(v.id, 'vendidas', 'Vendidas', v.vendidas)}
-            ${field(v.id, 'perdidas', 'Perdidas', v.perdidas)}
+          <div class="vendor-card-body">
+            <div class="field-grid">
+              ${field(v.id, 'recebidas', 'Recebidas', v.recebidas)}
+              ${field(v.id, 'vendidas', 'Vendidas', v.vendidas)}
+              ${field(v.id, 'perdidas', 'Perdidas', v.perdidas)}
+            </div>
+            <input type="text" class="notes-input" data-id="${v.id}" placeholder="Notas" value="${(v.notas || '').replace(/"/g, '&quot;')}" ${isAdmin ? '' : 'disabled'}>
           </div>
-          <input type="text" class="notes-input" data-id="${v.id}" placeholder="Notas" value="${(v.notas || '').replace(/"/g, '&quot;')}" ${isAdmin ? '' : 'disabled'}>
         </div>`;
       }).join('') + '</div>';
   }).join('');
 
   if (isAdmin) bindVendorEvents();
+  bindExpandableCards();
+}
+
+function bindExpandableCards() {
+  if (window.innerWidth > 640) return; // só mobile
+  document.querySelectorAll('.vendor-header').forEach(header => {
+    header.addEventListener('click', e => {
+      if (e.target.closest('.btn-del')) return; // não expandir ao clicar em remover
+      const card = header.closest('.vendor-card');
+      card.classList.toggle('expanded');
+      haptic(8);
+    });
+  });
 }
 
 function bindVendorEvents() {
@@ -366,6 +388,7 @@ function bindVendorEvents() {
     btn.addEventListener('click', async () => {
       const v = data.vendedores.find(x => x.id === btn.dataset.id);
       if (confirm('Remover ' + v.nome + '?')) {
+        haptic([20, 10, 20]);
         data.vendedores = data.vendedores.filter(x => x.id !== btn.dataset.id);
         await save();
         renderAll();
