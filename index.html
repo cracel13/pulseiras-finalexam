@@ -111,12 +111,36 @@
       .stat-value { font-size: 20px; }
       .pay-summary { grid-template-columns: 1fr; }
     }
+    /* ── Keyframes ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0);    }
+      20%      { transform: translateX(-9px); }
+      40%      { transform: translateX( 9px); }
+      60%      { transform: translateX(-5px); }
+      80%      { transform: translateX( 5px); }
+    }
+
+    /* ── Login ── */
     #login-overlay {
       display: none;
       position: fixed; inset: 0; z-index: 9999;
       background: var(--bg-tertiary);
       align-items: center; justify-content: center;
     }
+    #login-overlay.visible { animation: fadeIn 0.3s ease both; }
+    #login-overlay.hiding  { animation: fadeOut 0.3s ease both; }
     .login-box {
       background: var(--bg);
       border: 0.5px solid var(--border-strong);
@@ -124,12 +148,25 @@
       padding: 32px 28px;
       width: 100%; max-width: 340px;
       text-align: center;
+      animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
+    .login-box.shake { animation: shake 0.4s ease; }
     .login-box h2 { margin-bottom: 6px; }
     .login-box p { font-size: 13px; color: var(--text-secondary); margin: 0 0 20px; }
     .login-box input { width: 100%; margin-bottom: 12px; padding: 10px 12px; }
     .login-box button { width: 100%; padding: 10px; }
     #login-error { display: none; color: var(--danger); font-size: 13px; margin-top: 8px; }
+
+    /* ── Dashboard ── */
+    .stat-card  { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .stat-card:nth-child(1) { animation-delay:  0ms; }
+    .stat-card:nth-child(2) { animation-delay: 50ms; }
+    .stat-card:nth-child(3) { animation-delay:100ms; }
+    .stat-card:nth-child(4) { animation-delay:150ms; }
+    .stat-card:nth-child(5) { animation-delay:200ms; }
+    .stat-card:nth-child(6) { animation-delay:250ms; }
+    .card { animation: fadeIn 0.5s ease both; }
+    .tab-content { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
   </style>
 </head>
 <body>
@@ -178,7 +215,7 @@
       <button class="tab-btn" data-tab="pagamentos"><i class="ti ti-cash"></i> Pagamentos</button>
     </div>
 
-    <div id="tab-dashboard">
+    <div id="tab-dashboard" class="tab-content">
       <div class="stats-grid">
         <div class="stat-card"><p class="stat-label">Distribuídas</p><p class="stat-value" id="stat-total">0</p></div>
         <div class="stat-card"><p class="stat-label">Vendidas</p><p class="stat-value" id="stat-vendidas">0</p></div>
@@ -207,7 +244,7 @@
       </div>
     </div>
 
-    <div id="tab-vendedores" style="display: none;">
+    <div id="tab-vendedores" class="tab-content" style="display: none;">
       <div class="add-form admin-only">
         <input type="text" id="new-name" placeholder="Nome do vendedor">
         <select id="new-cat">
@@ -219,7 +256,7 @@
       <div id="vendedores-list"></div>
     </div>
 
-    <div id="tab-pagamentos" style="display: none;">
+    <div id="tab-pagamentos" class="tab-content" style="display: none;">
       <div class="pay-summary">
         <div><p class="stat-label">Total a receber</p><p class="stat-value" id="pag-total" style="font-size: 18px;">0 €</p></div>
         <div><p class="stat-label">Já recebido</p><p class="stat-value" id="pag-recebido" style="font-size: 18px; color: var(--success);">0 €</p></div>

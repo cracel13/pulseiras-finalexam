@@ -61,10 +61,21 @@ let isAuthenticated = false;
 // ============================================================================
 function showLoginOverlay() {
   const overlay = document.getElementById('login-overlay');
+  overlay.classList.remove('hiding');
   overlay.style.display = 'flex';
+  overlay.classList.add('visible');
   document.getElementById('login-pwd').value = '';
   document.getElementById('login-error').style.display = 'none';
   setTimeout(() => document.getElementById('login-pwd').focus(), 100);
+}
+
+function hideLoginOverlay() {
+  const overlay = document.getElementById('login-overlay');
+  overlay.classList.add('hiding');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.classList.remove('visible', 'hiding');
+  }, 300);
 }
 
 function checkViewAuth() {
@@ -76,20 +87,23 @@ function checkViewAuth() {
     const hash = await hashPassword(pwd);
     if (hash === VIEW_HASH || hash === ADMIN_HASH) {
       isAuthenticated = true;
-      if (hash === ADMIN_HASH) {
-        isAdmin = true;
-      }
-      document.getElementById('login-overlay').style.display = 'none';
+      if (hash === ADMIN_HASH) isAdmin = true;
+      hideLoginOverlay();
       if (!appInitialized) {
         appInitialized = true;
-        init();
+        setTimeout(() => init(), 200);
       } else {
-        renderAll();
+        setTimeout(() => renderAll(), 200);
       }
     } else {
       document.getElementById('login-error').style.display = 'block';
       document.getElementById('login-pwd').value = '';
       document.getElementById('login-pwd').focus();
+      const box = document.querySelector('.login-box');
+      box.classList.remove('shake');
+      void box.offsetWidth; // força re-trigger da animação
+      box.classList.add('shake');
+      setTimeout(() => box.classList.remove('shake'), 400);
     }
   });
 }
@@ -279,9 +293,9 @@ function renderVendedores() {
     const items = grupos[cat];
     if (items.length === 0) return '';
     return `<div class="group"><p class="group-title">${cat === 'AE' ? 'Agrupamentos Escolares' : 'Chefes'} (${items.length})</p>` +
-      items.map(v => {
+      items.map((v, i) => {
         const e = estado(v);
-        return `<div class="vendor-card">
+        return `<div class="vendor-card" style="animation: fadeUp 0.35s cubic-bezier(0.16,1,0.3,1) both; animation-delay:${i * 40}ms;">
           <div class="vendor-header">
             <div class="vendor-name">
               <span class="dot" style="background:${e.cor}"></span>
@@ -411,7 +425,15 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     ['dashboard', 'vendedores', 'pagamentos'].forEach(t => {
-      document.getElementById('tab-' + t).style.display = t === btn.dataset.tab ? 'block' : 'none';
+      const el = document.getElementById('tab-' + t);
+      if (t === btn.dataset.tab) {
+        el.style.display = 'block';
+        el.classList.remove('tab-content');
+        void el.offsetWidth; // força re-trigger
+        el.classList.add('tab-content');
+      } else {
+        el.style.display = 'none';
+      }
     });
     if (btn.dataset.tab === 'dashboard') renderCharts();
   });
