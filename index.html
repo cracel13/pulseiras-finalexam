@@ -8,6 +8,9 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
@@ -41,10 +44,21 @@
         --border-strong: rgba(255,255,255,0.2);
       }
     }
+    /* ── Tema manual ── */
+    :root[data-theme="light"] {
+      --bg: #ffffff; --bg-secondary: #f5f4ef; --bg-tertiary: #faf9f5;
+      --text: #1f1e1d; --text-secondary: #5f5e5a; --text-tertiary: #888780;
+      --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.2);
+    }
+    :root[data-theme="dark"] {
+      --bg: #1f1e1d; --bg-secondary: #2c2b29; --bg-tertiary: #262524;
+      --text: #f5f4ef; --text-secondary: #b4b2a9; --text-tertiary: #888780;
+      --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg-tertiary);
       color: var(--text);
       font-size: 15px;
@@ -65,9 +79,16 @@
       background: var(--bg); border: 0.5px solid var(--border-strong);
       border-radius: var(--radius); padding: 8px 12px; outline: none;
     }
-    button { cursor: pointer; transition: background 0.15s; }
+    button { cursor: pointer; transition: background 0.15s; position: relative; overflow: hidden; }
     button:hover { background: var(--bg-secondary); }
     button:active { transform: scale(0.98); }
+    @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+    .ripple-el {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      background: rgba(128,128,128,0.2); transform: scale(0);
+      animation: ripple-anim 0.5s linear;
+    }
+    button.primary .ripple-el { background: rgba(255,255,255,0.25); }
     button.primary { background: var(--accent); color: white; border-color: var(--accent); }
     button.primary:hover { background: var(--accent-dark); }
     input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(29,158,117,0.2); }
@@ -77,8 +98,9 @@
     .tab-btn.active { border-bottom-color: var(--text); color: var(--text); }
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
     .stat-card { background: var(--bg-secondary); border-radius: var(--radius); padding: 14px; }
-    .stat-label { font-size: 12px; color: var(--text-secondary); margin: 0 0 4px; }
-    .stat-value { font-size: 22px; font-weight: 500; margin: 0; }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin: 0 0 6px; display: flex; align-items: center; gap: 5px; }
+    .stat-label i { font-size: 13px; }
+    .stat-value { font-size: 22px; font-weight: 500; margin: 0; letter-spacing: -0.5px; }
     .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 10px; }
     .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
     .chart-wrap { position: relative; width: 100%; height: 200px; }
@@ -200,6 +222,7 @@
         <span style="font-size: 13px; color: var(--text-secondary);">Preço</span>
         <input type="number" id="price" value="4" min="0" step="0.5">
         <span style="font-size: 13px;">€</span>
+        <button id="btn-theme" class="btn-icon" title="Mudar tema"><i class="ti ti-moon"></i></button>
         <button id="btn-export" class="btn-icon" title="Exportar CSV"><i class="ti ti-download"></i></button>
         <button id="btn-login" class="btn-icon" title="Entrar como admin"><i class="ti ti-lock"></i></button>
       </div>
@@ -217,12 +240,12 @@
 
     <div id="tab-dashboard" class="tab-content">
       <div class="stats-grid">
-        <div class="stat-card"><p class="stat-label">Distribuídas</p><p class="stat-value" id="stat-total">0</p></div>
-        <div class="stat-card"><p class="stat-label">Vendidas</p><p class="stat-value" id="stat-vendidas">0</p></div>
-        <div class="stat-card"><p class="stat-label">Em mãos</p><p class="stat-value" id="stat-maos">0</p></div>
-        <div class="stat-card"><p class="stat-label">Angariado</p><p class="stat-value" id="stat-receita">0 €</p></div>
-        <div class="stat-card"><p class="stat-label">Recebido</p><p class="stat-value" id="stat-recebido">0 €</p></div>
-        <div class="stat-card"><p class="stat-label">Perdidas</p><p class="stat-value" id="stat-falta" style="color: var(--danger);">0</p></div>
+        <div class="stat-card"><p class="stat-label"><i class="ti ti-ticket" style="color:var(--info)"></i> Distribuídas</p><p class="stat-value" id="stat-total">0</p></div>
+        <div class="stat-card"><p class="stat-label"><i class="ti ti-circle-check" style="color:var(--success)"></i> Vendidas</p><p class="stat-value" id="stat-vendidas">0</p></div>
+        <div class="stat-card"><p class="stat-label"><i class="ti ti-hand-stop" style="color:var(--warning)"></i> Em mãos</p><p class="stat-value" id="stat-maos">0</p></div>
+        <div class="stat-card"><p class="stat-label"><i class="ti ti-coins" style="color:var(--accent)"></i> Angariado</p><p class="stat-value" id="stat-receita">0 €</p></div>
+        <div class="stat-card"><p class="stat-label"><i class="ti ti-wallet" style="color:var(--success)"></i> Recebido</p><p class="stat-value" id="stat-recebido">0 €</p></div>
+        <div class="stat-card"><p class="stat-label"><i class="ti ti-alert-triangle" style="color:var(--danger)"></i> Perdidas</p><p class="stat-value" id="stat-falta" style="color: var(--danger);">0</p></div>
       </div>
 
       <div class="charts-grid">

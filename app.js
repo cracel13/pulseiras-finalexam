@@ -148,6 +148,21 @@ renderDaysCounter();
 function totalVenda(v) { return v.vendidas * data.price; }
 function formatEur(n) { return Math.round(n).toLocaleString('pt-PT') + ' €'; }
 
+function animateValue(el, to, format = v => String(v)) {
+  if (!el) return;
+  const from = parseFloat(el.dataset.animVal) || 0;
+  el.dataset.animVal = to;
+  if (from === to) { el.textContent = format(to); return; }
+  const duration = 650;
+  const start = performance.now();
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  (function tick(now) {
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = format(Math.round(from + (to - from) * easeOut(p)));
+    if (p < 1) requestAnimationFrame(tick);
+  })(performance.now());
+}
+
 function estado(v) {
   if (v.recebidas === 0) return { cor: '#888780', label: 'Sem pulseiras' };
   if (v.perdidas > 0 && emMaos(v) === 0) return { cor: '#a32d2d', label: 'Fechado c/ perdas' };
@@ -229,16 +244,17 @@ function renderStats() {
   const maos = data.vendedores.reduce((s, v) => s + emMaos(v), 0);
   const recebido = data.vendedores.reduce((s, v) => s + (v.pago || 0), 0);
   const perdidas = data.vendedores.reduce((s, v) => s + v.perdidas, 0);
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-vendidas').textContent = vend;
-  document.getElementById('stat-maos').textContent = maos;
-  document.getElementById('stat-receita').textContent = formatEur(vend * data.price);
-  document.getElementById('stat-recebido').textContent = formatEur(recebido);
-  document.getElementById('stat-falta').textContent = perdidas;
+  animateValue(document.getElementById('stat-total'), total);
+  animateValue(document.getElementById('stat-vendidas'), vend);
+  animateValue(document.getElementById('stat-maos'), maos);
+  animateValue(document.getElementById('stat-receita'), Math.round(vend * data.price), v => formatEur(v));
+  animateValue(document.getElementById('stat-recebido'), Math.round(recebido), v => formatEur(v));
+  animateValue(document.getElementById('stat-falta'), perdidas);
 }
 
 function renderCharts() {
-  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = document.documentElement.getAttribute('data-theme');
+  const isDark = theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches);
   const txt = isDark ? '#b4b2a9' : '#444441';
   const grid = isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
   Object.values(charts).forEach(c => c && c.destroy());
@@ -457,22 +473,22 @@ document.getElementById('btn-add').addEventListener('click', async () => {
   renderAll();
 });
 
-document.getElementById('btn-login').addEventListener('click', () => {
+document.getElementById('btn-login').addEventListener('click', async () => {
   if (isAdmin) {
     if (confirm('Sair do modo de edição?')) {
       isAdmin = false;
-      localStorage.removeItem('isAdmin');
       updateAdminUI();
       renderAll();
     }
   } else {
     const pwd = prompt('Palavra-passe de administrador:');
-    if (pwd === ADMIN_PASSWORD) {
+    if (pwd === null) return;
+    const hash = await hashPassword(pwd);
+    if (hash === ADMIN_HASH) {
       isAdmin = true;
-      localStorage.setItem('isAdmin', 'true');
       updateAdminUI();
       renderAll();
-    } else if (pwd !== null) {
+    } else {
       alert('Palavra-passe incorrecta.');
     }
   }
@@ -505,4 +521,49 @@ async function init() {
   subscribeRealtime();
 }
 
+// ============================================================================
+// RIPPLE
+// ============================================================================
+function initRipple() {
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const el = document.createElement('span');
+    el.className = 'ripple-el';
+    el.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+    btn.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  });
+}
+
+// ============================================================================
+// TEMA MANUAL
+// ============================================================================
+function updateThemeBtn() {
+  const theme = document.documentElement.getAttribute('data-theme');
+  const isDark = theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  const btn = document.getElementById('btn-theme');
+  btn.innerHTML = isDark ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>';
+  btn.title = isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro';
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  updateThemeBtn();
+  document.getElementById('btn-theme').addEventListener('click', () => {
+    const theme = document.documentElement.getAttribute('data-theme');
+    const isDark = theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches);
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateThemeBtn();
+    renderCharts();
+  });
+}
+
+initRipple();
+initTheme();
 checkViewAuth();
