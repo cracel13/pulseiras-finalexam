@@ -10,11 +10,14 @@ const FIREBASE_CONFIG = {
   appId: "1:859157058286:web:1de4bb5fed23f1fa0d59ff"
 };
 
-// Palavra-passe para visualizar a página
-const VIEW_PASSWORD = "finalexam";
+// Hashes SHA-256 das palavras-passe (as passwords reais não estão aqui)
+const VIEW_HASH   = "145d44144f5e61edfad45bbabddd5637b5e5bd01f0e500eb5cd6c8d4f973ca44";
+const ADMIN_HASH  = "3d8acd429e46b186fc219472dec1f323d210117a9857c62068c1b1b78a05f036";
 
-// Palavra-passe simples para entrar em modo de edição
-const ADMIN_PASSWORD = "pulseiras2026";
+async function hashPassword(pwd) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // ============================================================================
 // IMPORTS FIREBASE
@@ -67,12 +70,13 @@ function showLoginOverlay() {
 function checkViewAuth() {
   showLoginOverlay();
 
-  document.getElementById('login-form').addEventListener('submit', (e) => {
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const pwd = document.getElementById('login-pwd').value;
-    if (pwd === VIEW_PASSWORD || pwd === ADMIN_PASSWORD) {
+    const hash = await hashPassword(pwd);
+    if (hash === VIEW_HASH || hash === ADMIN_HASH) {
       isAuthenticated = true;
-      if (pwd === ADMIN_PASSWORD) {
+      if (hash === ADMIN_HASH) {
         isAdmin = true;
       }
       document.getElementById('login-overlay').style.display = 'none';
