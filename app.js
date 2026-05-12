@@ -347,7 +347,6 @@ function renderVendedores() {
 }
 
 function bindExpandableCards() {
-  if (window.innerWidth > 640) return; // só mobile
   document.querySelectorAll('.vendor-header').forEach(header => {
     header.addEventListener('click', e => {
       if (e.target.closest('.btn-del')) return; // não expandir ao clicar em remover
