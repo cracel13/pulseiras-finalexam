@@ -480,6 +480,37 @@ document.getElementById('btn-add').addEventListener('click', async () => {
   renderAll();
 });
 
+function confirmLogout() {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('confirm-overlay');
+    const container = document.querySelector('.container');
+
+    overlay.style.display = 'flex';
+    overlay.classList.remove('hiding');
+    overlay.classList.add('visible');
+    container.classList.add('blurred');
+
+    function close(result) {
+      overlay.classList.remove('visible');
+      overlay.classList.add('hiding');
+      container.classList.remove('blurred');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.classList.remove('hiding');
+      }, 250);
+      document.getElementById('confirm-yes').removeEventListener('click', onYes);
+      document.getElementById('confirm-no').removeEventListener('click', onNo);
+      resolve(result);
+    }
+
+    function onYes() { close(true); }
+    function onNo()  { close(false); }
+
+    document.getElementById('confirm-yes').addEventListener('click', onYes);
+    document.getElementById('confirm-no').addEventListener('click', onNo);
+  });
+}
+
 function promptAdminPassword() {
   return new Promise(resolve => {
     const overlay = document.getElementById('admin-overlay');
@@ -535,7 +566,8 @@ function promptAdminPassword() {
 
 document.getElementById('btn-login').addEventListener('click', async () => {
   if (isAdmin) {
-    if (confirm('Sair do modo de edição?')) {
+    const confirmed = await confirmLogout();
+    if (confirmed) {
       isAdmin = false;
       updateAdminUI();
       renderAll();

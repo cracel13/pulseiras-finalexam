@@ -191,6 +191,23 @@
     .card { animation: fadeIn 0.5s ease both; }
     .tab-content { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
+    /* ── Modal de confirmação ── */
+    #confirm-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,0.35);
+      align-items: center; justify-content: center;
+    }
+    #confirm-overlay.visible {
+      animation: fadeIn 0.25s ease both;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+    }
+    #confirm-overlay.hiding { animation: fadeOut 0.25s ease both; }
+    #confirm-yes { width: 100%; padding: 10px; }
+    #confirm-no  { width: 100%; padding: 10px; background: transparent; border-color: var(--border); color: var(--text-secondary); }
+    #confirm-no:hover { background: var(--bg-secondary); }
+
     /* ── Modal de admin ── */
     #admin-overlay {
       display: none;
@@ -222,6 +239,15 @@
         <button type="submit" class="primary">Entrar</button>
         <p id="login-error">Palavra-passe incorrecta. Tenta novamente.</p>
       </form>
+    </div>
+  </div>
+
+  <div id="confirm-overlay">
+    <div class="login-box" id="confirm-box">
+      <h2><i class="ti ti-lock-open"></i> Sair da edição</h2>
+      <p>Tens a certeza que queres sair do modo de edição?</p>
+      <button id="confirm-yes" class="primary">Sair</button>
+      <button id="confirm-no" style="margin-top:6px;">Cancelar</button>
     </div>
   </div>
 
