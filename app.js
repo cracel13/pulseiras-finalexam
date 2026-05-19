@@ -480,6 +480,59 @@ document.getElementById('btn-add').addEventListener('click', async () => {
   renderAll();
 });
 
+function promptAdminPassword() {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('admin-overlay');
+    const container = document.querySelector('.container');
+    const pwd = document.getElementById('admin-pwd');
+    const error = document.getElementById('admin-error');
+    const box = document.getElementById('admin-box');
+
+    pwd.value = '';
+    error.style.display = 'none';
+    overlay.style.display = 'flex';
+    overlay.classList.remove('hiding');
+    overlay.classList.add('visible');
+    container.classList.add('blurred');
+    setTimeout(() => pwd.focus(), 100);
+
+    function close(result) {
+      overlay.classList.remove('visible');
+      overlay.classList.add('hiding');
+      container.classList.remove('blurred');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.classList.remove('hiding');
+      }, 250);
+      document.getElementById('admin-form').removeEventListener('submit', onSubmit);
+      document.getElementById('admin-cancel').removeEventListener('click', onCancel);
+      resolve(result);
+    }
+
+    async function onSubmit(e) {
+      e.preventDefault();
+      const hash = await hashPassword(pwd.value);
+      if (hash === ADMIN_HASH) {
+        close(true);
+      } else {
+        haptic([50, 30, 50]);
+        error.style.display = 'block';
+        pwd.value = '';
+        pwd.focus();
+        box.classList.remove('shake');
+        void box.offsetWidth;
+        box.classList.add('shake');
+        setTimeout(() => box.classList.remove('shake'), 400);
+      }
+    }
+
+    function onCancel() { close(false); }
+
+    document.getElementById('admin-form').addEventListener('submit', onSubmit);
+    document.getElementById('admin-cancel').addEventListener('click', onCancel);
+  });
+}
+
 document.getElementById('btn-login').addEventListener('click', async () => {
   if (isAdmin) {
     if (confirm('Sair do modo de edição?')) {
@@ -488,15 +541,11 @@ document.getElementById('btn-login').addEventListener('click', async () => {
       renderAll();
     }
   } else {
-    const pwd = prompt('Palavra-passe de administrador:');
-    if (pwd === null) return;
-    const hash = await hashPassword(pwd);
-    if (hash === ADMIN_HASH) {
+    const success = await promptAdminPassword();
+    if (success) {
       isAdmin = true;
       updateAdminUI();
       renderAll();
-    } else {
-      alert('Palavra-passe incorrecta.');
     }
   }
 });

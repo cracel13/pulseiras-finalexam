@@ -190,6 +190,26 @@
     .stat-card:nth-child(6) { animation-delay:250ms; }
     .card { animation: fadeIn 0.5s ease both; }
     .tab-content { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* ── Modal de admin ── */
+    #admin-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,0.35);
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(0px);
+    }
+    #admin-overlay.visible {
+      animation: fadeIn 0.25s ease both;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+    }
+    #admin-overlay.hiding { animation: fadeOut 0.25s ease both; }
+    .container { transition: filter 0.25s ease; }
+    .container.blurred { filter: blur(4px); pointer-events: none; }
+    #admin-error { display: none; color: var(--danger); font-size: 13px; margin-top: 8px; }
+    #admin-cancel { background: transparent; border-color: var(--border); color: var(--text-secondary); margin-top: 6px; }
+    #admin-cancel:hover { background: var(--bg-secondary); }
   </style>
 </head>
 <body>
@@ -201,6 +221,19 @@
         <input type="password" id="login-pwd" placeholder="Palavra-passe" autocomplete="current-password" autofocus>
         <button type="submit" class="primary">Entrar</button>
         <p id="login-error">Palavra-passe incorrecta. Tenta novamente.</p>
+      </form>
+    </div>
+  </div>
+
+  <div id="admin-overlay">
+    <div class="login-box" id="admin-box">
+      <h2><i class="ti ti-lock"></i> Modo de edição</h2>
+      <p>Introduz a palavra-passe de administrador</p>
+      <form id="admin-form">
+        <input type="password" id="admin-pwd" placeholder="Palavra-passe" autocomplete="current-password">
+        <button type="submit" class="primary">Entrar</button>
+        <button type="button" id="admin-cancel">Cancelar</button>
+        <p id="admin-error">Palavra-passe incorrecta. Tenta novamente.</p>
       </form>
     </div>
   </div>
